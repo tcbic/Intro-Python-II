@@ -109,21 +109,28 @@ new_player = Player(player_name, room['outside'])
 # If the user enters "q", quit the game.
 
 while True:
+
     # Print the new player's current room name.
+
     print(f"You are currently at {new_player.current_room.name}.")
+
     # Print the new player's current room description.
+
     print(f"About: {new_player.current_room.description}")
     print("----------------------------------------------------------------------")
     print("----------------------------------------------------------------------")
+    
     # Ask the player what direction they would like to go using input.
+
     where_to = input("""What direction would you like to go?
     (Note: Please enter n, e, s or w. You can also enter q to quit the game.): """)
     print("----------------------------------------------------------------------")
     print("----------------------------------------------------------------------")
+    
     # Use the user's input to determine if it's a valid move.
-    # Define all of the valid inputs. Could do this in a list. Think about Brady's example.
+    # Define all of the valid inputs and use to compare to user's input.
     # If valid input, change the player's location based on the room they are in.
-    # If not valid input, return an error message to the user.
+    # If not a valid input, return an error message to the user.
     
     # Check that input is a valid direction.
     if where_to in valid_directions:
