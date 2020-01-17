@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+from item import Item
 
 # Declare all the rooms.
 
@@ -33,15 +34,18 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
-#
-# Main
-#
+# Declare all the items.
+
+items = { "frog": Item("Frog", "I'm cooler than I look."),
+"goat": Item("Goat", "I bring good luck."),
+"hippo": Item("Hippo", "I'm a lot of fun to be around."),
+}
 
 # Define valid directions for the game.
 
 valid_directions = ["n", "e", "s", "w"]
 
-# Helper function
+# Started with room_mover function to move.
 
 def room_mover(input):
     if where_to == "n":
@@ -84,6 +88,41 @@ def room_mover(input):
             print("----------------------------------------------------------------------")
             print("----------------------------------------------------------------------")
 
+# Now use move function to move.
+
+def move(input):
+    if input == "n":
+        if new_player.current_room.n_to != None:
+            new_player.current_room = new_player.current_room.n_to
+        else:
+            print('Unable to move North from here.')
+            print("----------------------------------------------------------------------")
+
+    elif input == "s":
+        if new_player.current_room.s_to != None:
+            new_player.current_room = new_player.current_room.s_to
+        else:
+            print('Unable to move South from here.')
+            print("----------------------------------------------------------------------")
+
+    elif input == "e":
+        if new_player.current_room.e_to != None:
+            new_player.current_room = new_player.current_room.e_to
+        else:
+            print('Unable to move East from here.')
+            print("----------------------------------------------------------------------")
+    
+    elif input == "w":
+        if new_player.current_room.w_to != None:
+            new_player.current_room = new_player.current_room.w_to
+        else:
+            print('Unable to move West from here.')
+            print("----------------------------------------------------------------------") 
+
+#
+# MAIN
+#
+
 # Welcome and define player's name.
 print("----------------------------------------------------------------------")
 print("----------------------------------------------------------------------")
@@ -96,6 +135,11 @@ print("----------------------------------------------------------------------")
 # Make a new player object that is currently in the 'outside' room.
 
 new_player = Player(player_name, room['outside'])
+
+# Put all items outside to begin.
+
+for item in items:
+    new_player.current_room.items.append(item)
 
 # Write a loop that:
 #
@@ -119,7 +163,89 @@ while True:
     print(f"About: {new_player.current_room.description}")
     print("----------------------------------------------------------------------")
     print("----------------------------------------------------------------------")
+
+    # Print the items for the player that are visible in that room.
+    # What items are in the current room?
+
+    print("What items are in this room?\n")
+    if new_player.current_room.items == []:
+        print("There are no items in this room.")
+        print("----------------------------------------------------------------------")
+    else:
+        print(new_player.current_room.print_items())
+        print("----------------------------------------------------------------------")
     
+    print("What items do you have?\n")
+    if new_player.inv == []:
+        print("Currently, you don't have any items.")
+        print("----------------------------------------------------------------------")
+    else:
+        print(new_player.print_inv())
+        print("----------------------------------------------------------------------")
+
+    action = input("Do you want to take items, drop items or do nothing?\n(Please enter take, drop or nothing.): ")
+    print("----------------------------------------------------------------------")
+    # Get user input into most normalized format by converting to all 
+    # lowercase and stripping white space.
+    action = action.lower().strip()
+
+    if action == "take":
+        # Check if there are items to take first.
+        if new_player.current_room.items == []:
+            print("There aren't any items to take.")
+            print("----------------------------------------------------------------------")
+        else:
+            take_item = input("What item would you like to take?: ")
+            # Note for refactoring...Could this be turned into a function?
+            
+            # Normalize user entry.
+            take_item = take_item.lower().strip()
+            
+            # See if item is in the current room.
+            if take_item in new_player.current_room.items:
+                # Add item to player invenotry.
+                new_player.inv.append(take_item)
+                print(take_item, " was added to your inventory.")
+                print("----------------------------------------------------------------------")                    
+                # Remove item from the room.
+                new_player.current_room.items.remove(take_item)
+            else:
+                print("Unable to perform action.")
+                print("----------------------------------------------------------------------")
+
+    elif action == "drop":
+        # Check if player has any items to drop.
+        if new_player.inv == []:
+            print("You don't have any items to drop.")
+            print("----------------------------------------------------------------------")
+        else:
+            drop_item = input("What item would you like to drop?: ")
+            print("----------------------------------------------------------------------")
+            # Note for refactoring...Could this be turned into a function?
+            
+            # Normalize user entry.
+            drop_item = take_item.lower().strip()
+            
+            # See if item is in the current room.
+            if drop_item in new_player.inv:
+                # Remove from player inventory.
+                new_player.inv.remove(drop_item)
+                print(drop_item, " was removed from your inventory.")
+                print("----------------------------------------------------------------------")
+                # Add item to the room.
+                new_player.current_room.items.append(drop_item)
+            else:
+                print("Unable to perform action.")
+                print("----------------------------------------------------------------------")
+    
+    elif action == "nothing":
+        print("Okay, let's keep moving.")
+        print("----------------------------------------------------------------------")
+    
+    else:
+        print("You've entered an invalid command.")
+        print("----------------------------------------------------------------------")
+
     # Ask the player what direction they would like to go using input.
 
     where_to = input("""What direction would you like to go?
@@ -134,7 +260,7 @@ while True:
     
     # Check that input is a valid direction.
     if where_to in valid_directions:
-        room_mover(where_to)
+        move(where_to)
 
     # If the user enters "q", quit the game.    
     elif where_to == "q":  
@@ -143,3 +269,5 @@ while True:
     # If the move can't be made, return an error message.    
     else:
         print("That's an invalid entry. Please try again.")
+        print("----------------------------------------------------------------------")
+        print("----------------------------------------------------------------------")
